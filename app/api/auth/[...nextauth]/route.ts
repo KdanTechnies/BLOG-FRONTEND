@@ -37,19 +37,22 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }: any) {
-      if (user) token.accessToken = user.accessToken;
-      return token;
+      // 1. When the backend gives us the token, save it to the encrypted cookie (JWT)
+      async jwt({ token, user }: any) {
+        if (user) {
+          token.accessToken = user.accessToken;
+          token.role = user.role; // Optional: If you have roles
+        }
+        return token;
+      },
+      
+      // 2. When the frontend asks for data, copy the token from the cookie to the session
+      async session({ session, token }: any) {
+        session.accessToken = token.accessToken;
+        session.user.id = token.sub; // Optional: Pass user ID
+        return session;
+      },
     },
-    async session({ session, token }: any) {
-      session.accessToken = token.accessToken;
-      return session;
-    },
-  },
-  secret: process.env.NEXTAUTH_SECRET, // Make sure this is loaded
-  pages: {
-    signIn: "/login",
-  },
 });
 
 // IMPORTANT: You must export GET and POST
