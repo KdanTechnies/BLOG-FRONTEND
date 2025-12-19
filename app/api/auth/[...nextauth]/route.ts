@@ -12,7 +12,8 @@ const handler = NextAuth({
       async authorize(credentials) {
         try {
           // Connect to your FastAPI Backend
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/token`, {
+         // 👇 Make sure there is NO slash at the end of the URL
+            const res = await fetch("https://blog-backend-l.onrender.com", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: new URLSearchParams({
