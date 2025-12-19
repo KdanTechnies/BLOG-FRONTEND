@@ -4,20 +4,24 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Edit, Trash2, Plus, FileText } from "lucide-react";
 import { getSession } from "next-auth/react";
+// 1. IMPORT THE NEW COMPONENT
+import NewsFetcher from "@/components/NewsFetcher";
 
-// 1. UPDATE INTERFACE: Added 'author' object
 interface Post {
   id: number;
   title: string;
   slug: string;
   published: boolean;
   created_at: string;
-  author: { email: string; }; // <--- Added this to fix type errors
+  author: { email: string; };
 }
 
 export default function PostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // 2. HARDCODE URL TO PREVENT ERRORS
+  const API_URL = "https://blog-backend-l.onrender.com"; 
 
   // Fetch Posts
   const fetchPosts = async () => {
@@ -25,7 +29,7 @@ export default function PostsPage() {
     const token = (session as any)?.accessToken; 
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts`, {
+      const res = await fetch(`${API_URL}/posts`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -48,7 +52,7 @@ export default function PostsPage() {
     const session = await getSession();
     const token = (session as any)?.accessToken;
 
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${id}`, {
+    await fetch(`${API_URL}/posts/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -61,14 +65,22 @@ export default function PostsPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
             <h1 className="text-3xl font-bold text-slate-800">Posts</h1>
             <p className="text-slate-500">Manage your blog content</p>
         </div>
-        <Link href="/admin/posts/new" className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-lg shadow-blue-200 transition-all">
-          <Plus size={18} /> Create New
-        </Link>
+        
+        {/* 3. ADDED BUTTON GROUP HERE */}
+        <div className="flex flex-wrap gap-3">
+            {/* The Auto Fetch Buttons */}
+            <NewsFetcher />
+            
+            {/* The Manual Create Button */}
+            <Link href="/admin/posts/new" className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-lg shadow-blue-200 transition-all text-xs font-bold">
+            <Plus size={16} /> Create New
+            </Link>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
@@ -76,25 +88,20 @@ export default function PostsPage() {
           <thead className="bg-slate-50 border-b border-slate-100">
             <tr>
               <th className="p-5 font-semibold text-slate-600">Title</th>
-              
-              {/* 2. ADDED HEADER HERE */}
               <th className="p-5 font-semibold text-slate-600">Author</th>
-              
               <th className="p-5 font-semibold text-slate-600">Status</th>
               <th className="p-5 font-semibold text-slate-600">Date</th>
               <th className="p-5 font-semibold text-slate-600 text-right">Actions</th>
-          
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
             {posts.map((post) => (
               <tr key={post.id} className="hover:bg-slate-50 transition-colors">
                 <td className="p-5">
-                  <div className="font-medium text-slate-900">{post.title}</div>
+                  <div className="font-medium text-slate-900 line-clamp-1 max-w-xs">{post.title}</div>
                   <div className="text-xs text-slate-400">/{post.slug}</div>
                 </td>
                 
-                {/* 3. ADDED BODY CELL HERE */}
                 <td className="p-5 text-sm text-slate-600">
                     <span className="px-2 py-1 bg-slate-100 rounded text-xs font-medium text-slate-700">
                         {post.author?.email || "Unknown"}
@@ -128,7 +135,7 @@ export default function PostsPage() {
         {posts.length === 0 && (
             <div className="p-12 text-center text-slate-400">
                 <FileText size={48} className="mx-auto mb-4 opacity-20" />
-                <p>No posts found. Create your first one!</p>
+                <p>No posts found. Click the buttons above to create one!</p>
             </div>
         )}
       </div>
