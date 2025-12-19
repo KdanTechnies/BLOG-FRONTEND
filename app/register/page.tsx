@@ -19,9 +19,13 @@ export default function RegisterPage() {
     setIsLoading(true);
     setError("");
 
+    // 👇 1. PASTE YOUR RENDER URL HERE (No slash at the end)
+    // Example: "https://my-blog-api.onrender.com"
+    const API_URL = "https://blog-backend-l.onrender.com"; 
+
     try {
-      // Connect to Python Backend
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
+      // Connect to Python Backend using the hardcoded URL
+      const res = await fetch(`${API_URL}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -35,7 +39,8 @@ export default function RegisterPage() {
         setError(data.detail || "Registration failed. Try again.");
       }
     } catch (err) {
-      setError("Server connection failed.");
+      console.error("Registration Error:", err);
+      setError("Server connection failed. Check console for details.");
     } finally {
       setIsLoading(false);
     }
