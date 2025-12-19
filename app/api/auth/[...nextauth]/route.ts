@@ -13,7 +13,7 @@ const handler = NextAuth({
         try {
           // Connect to your FastAPI Backend
          // 👇 Make sure there is NO slash at the end of the URL
-            const res = await fetch("https://blog-backend-l.onrender.com", {
+            const res = await fetch("https://blog-backend-l.onrender.com/token", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: new URLSearchParams({
